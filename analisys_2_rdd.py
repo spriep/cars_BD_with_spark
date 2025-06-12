@@ -3,24 +3,31 @@ import csv
 import re
 from collections import Counter
 
+# Crear SparkContext
 sc = SparkContext(appName="CityYearPriceRange")
 
-# Leer CSV (ajusta la ruta a tu archivo)
-lines = sc.textFile("cars.csv")
+# === 1. Leer CSV limpio desde carpeta (salida de Spark) ===
+lines = sc.textFile("/data/base_datos_cars_BD/cars_clean/*")
 
-# Convertir CSV a filas
+# === 2. Eliminar encabezado ===
 header = lines.first()
 data = lines.filter(lambda l: l != header)
+
+# === 3. Parsear CSV a filas ===
 rows = data.map(lambda line: next(csv.reader([line])))
 
+# === 4. Procesar filas ===
 def process_row(row):
     try:
-        city = row[5]
-        year = row[6]
-        price = float(row[7])
-        days = float(row[8])
-        desc = row[9].lower()
-        
+        make = row[0]
+        model = row[1]
+        price = float(row[2])
+        year = row[3]
+        city = row[4]
+        days = float(row[5])
+        desc = row[6].lower()
+
+        # Clasificación por rango de precios
         if price > 50000:
             price_range = 'high'
         elif price >= 20000:
@@ -28,7 +35,9 @@ def process_row(row):
         else:
             price_range = 'low'
 
+        # Extraer palabras clave de descripción
         words = re.findall(r'\b[a-z]{3,}\b', desc)
+
         key = (city, year, price_range)
         return (key, (1, days, words))
     except:
@@ -36,15 +45,17 @@ def process_row(row):
 
 filtered = rows.map(process_row).filter(lambda x: x is not None)
 
+# === 5. Reducir por clave (ciudad, año, rango de precio) ===
 def reduce_func(a, b):
     return (
-        a[0] + b[0],             # total cars
-        a[1] + b[1],             # total days
-        a[2] + b[2]              # merged words
+        a[0] + b[0],         # total coches
+        a[1] + b[1],         # total días
+        a[2] + b[2]          # lista combinada de palabras
     )
 
 reduced = filtered.reduceByKey(reduce_func)
 
+# === 6. Generar salida final con top 3 palabras y promedio de días ===
 def final_output(kv):
     key, (count, total_days, words) = kv
     top_words = [w for w, _ in Counter(words).most_common(3)]
@@ -53,5 +64,9 @@ def final_output(kv):
 
 results = reduced.map(final_output)
 
+# === 7. Mostrar primeros resultados ===
 for r in results.take(10):
     print(r)
+
+# === 8. Finalizar contexto Spark ===
+sc.stop()

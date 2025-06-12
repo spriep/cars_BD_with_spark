@@ -13,6 +13,8 @@ spark-submit /scripts/analisys_1.py
 
 
 
+
+
 ### 1. Análisis 1 (por marca y modelo)
 
 **Con Spark SQL:**
@@ -23,6 +25,6 @@ spark-submit --master local analysis1.sql
 hive -f analysis1.hql
 
 ### 2. Análisis 2 (Reporte por ciudad y año con rangos de precio)
-**Con Spark Core (RDD):**
+**Con Spark Core (RDD) y MapReduce:**
 ```bash
 spark-submit analysis2_rdd.py
