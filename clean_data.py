@@ -13,7 +13,7 @@ spark = SparkSession.builder \
     .config("spark.sql.adaptive.enabled", "true") \
     .config("spark.sql.adaptive.coalescePartitions.enabled", "true") \
     .getOrCreate()
-
+'''
 # === 1. Cargar CSV original ===
 path_csv = "/data/base_datos_cars_BD/used_cars_data.csv"
 
@@ -57,3 +57,10 @@ output_path = "/data/base_datos_cars_BD/cars_clean"  # o donde prefieras
 df.write.mode("overwrite").option("header", True).csv(output_path)
 
 print(f"\n✔ Datos limpios guardados en: {output_path}\n")
+'''
+
+df_clean = spark.read.option("header", True).csv("/data/base_datos_cars_BD/cars_clean")
+
+df_clean.show(5)
+df_clean.printSchema()
+print("Total rows:", df_clean.count())
