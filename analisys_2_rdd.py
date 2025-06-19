@@ -2,12 +2,18 @@ from pyspark import SparkContext
 import csv
 import re
 from collections import Counter
+import os
+os.environ['USER'] = 'saioa'
+os.environ['LOGNAME'] = 'saioa'
 
+print("Inicio del script")
 # Crear SparkContext
 sc = SparkContext(appName="CityYearPriceRange")
-
+data=r'C:\BDs_grandes\base_datos_cars_BD\cars_clean'
 # === 1. Leer CSV limpio desde carpeta (salida de Spark) ===
-lines = sc.textFile("/data/base_datos_cars_BD/cars_clean/*")
+#lines = sc.textFile("/data/base_datos_cars_BD/cars_clean/*")
+lines = sc.textFile("/data/cars_clean/cars.csv")
+
 
 # === 2. Eliminar encabezado ===
 header = lines.first()

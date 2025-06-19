@@ -27,4 +27,6 @@ hive -f analysis1.hql
 ### 2. Análisis 2 (Reporte por ciudad y año con rangos de precio)
 **Con Spark Core (RDD) y MapReduce:**
 ```bash
-spark-submit analysis2_rdd.py
+docker run -it -v C:\Users\saioa\Desktop\ROMA_TRE\Big_data\my_proyect:/scripts -v C:\BDs_grandes:/data bitnami/spark bash
+
+spark-submit analysys_2_rdd.py
